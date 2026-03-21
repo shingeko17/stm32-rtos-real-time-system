@@ -2,5 +2,12 @@ build/
 *.o
 *.elf
 *.bin
+*.hex
 *.map
 .vscode/
+*.axf
+*.lib
+[Dd]ebug/
+[Rr]elease/
+**/Debug/
+**/Release/
