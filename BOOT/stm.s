@@ -213,9 +213,9 @@ Reset_Handler:
     cmp    r0, r1                     /* Compare current address with end */
     bne    .zero_bss_loop             /* Loop if not done */
     
-    /* Step 4: For minimal LED bring-up, skip SystemInit() and use reset-default clock */
+    /* Step 4: Initialize system clocks/peripherals before entering main */
 .run_libc_init:
-    /* bl     SystemInit */
+    bl     SystemInit
     
     /* Step 5: Jump to main function */
     cpsie  i                         /* Re-enable interrupts before main */

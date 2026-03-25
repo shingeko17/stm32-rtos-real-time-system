@@ -36,6 +36,7 @@
 
 #include <stdint.h>
 #include "stm32f4xx.h"
+#include "heartbeat_protocol.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,10 +53,10 @@ extern "C" {
 #define UART_BAUDRATE          115200
 
 /** Heartbeat byte value */
-#define HEARTBEAT_PULSE        0xAA
+#define HEARTBEAT_PULSE        HEARTBEAT_PULSE_VALUE
 
 /** Heartbeat interval (ms) */
-#define HEARTBEAT_INTERVAL_MS  100
+#define HEARTBEAT_INTERVAL_MS  HEARTBEAT_PERIOD_MS
 
 /* ============================================================================
  * UART PIN MAPPING

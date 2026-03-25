@@ -7,189 +7,169 @@
 #include "adc_driver.h"
 #include "misc_drivers.h"
 
-/* ============================================================================
- * PRIVATE VARIABLES
- * ============================================================================ */
+/* Missing RCC bit in minimal header */
+#define RCC_AHB1Periph_DMA2 0x00400000UL
 
-/** DMA Buffer để lưu ADC result (3 channel) */
+/* ADC register bits */
+#define ADC_CR2_ADON       (1UL << 0)
+#define ADC_CR2_CONT       (1UL << 1)
+#define ADC_CR2_DMA        (1UL << 8)
+#define ADC_CR2_DDS        (1UL << 9)
+#define ADC_CR2_SWSTART    (1UL << 30)
+
+/* DMA register bits */
+#define DMA_SxCR_EN        (1UL << 0)
+#define DMA_SxCR_MINC      (1UL << 10)
+#define DMA_SxCR_PSIZE_0   (1UL << 11)
+#define DMA_SxCR_MSIZE_0   (1UL << 13)
+#define DMA_SxCR_CIRC      (1UL << 8)
+#define DMA_SxCR_PL_1      (1UL << 17)
+
+/* Peripheral base addresses */
+#define ADC1_BASE_ADDR       0x40012000UL
+#define ADC_COMMON_BASE_ADDR 0x40012300UL
+#define DMA2_BASE_ADDR       0x40026400UL
+#define DMA2_STREAM0_ADDR    (DMA2_BASE_ADDR + 0x10UL)
+
+/* Minimal ADC register layout */
+typedef struct {
+    volatile uint32_t SR;
+    volatile uint32_t CR1;
+    volatile uint32_t CR2;
+    volatile uint32_t SMPR1;
+    volatile uint32_t SMPR2;
+    volatile uint32_t JOFR1;
+    volatile uint32_t JOFR2;
+    volatile uint32_t JOFR3;
+    volatile uint32_t JOFR4;
+    volatile uint32_t HTR;
+    volatile uint32_t LTR;
+    volatile uint32_t SQR1;
+    volatile uint32_t SQR2;
+    volatile uint32_t SQR3;
+    volatile uint32_t JSQR;
+    volatile uint32_t JDR1;
+    volatile uint32_t JDR2;
+    volatile uint32_t JDR3;
+    volatile uint32_t JDR4;
+    volatile uint32_t DR;
+} ADC_RegDef_t;
+
+typedef struct {
+    volatile uint32_t CSR;
+    volatile uint32_t CCR;
+    volatile uint32_t CDR;
+} ADC_CommonRegDef_t;
+
+typedef struct {
+    volatile uint32_t CR;
+    volatile uint32_t NDTR;
+    volatile uint32_t PAR;
+    volatile uint32_t M0AR;
+    volatile uint32_t M1AR;
+    volatile uint32_t FCR;
+} DMA_StreamRegDef_t;
+
+#define ADC1_REGS         ((ADC_RegDef_t *)ADC1_BASE_ADDR)
+#define ADC_COMMON_REGS   ((ADC_CommonRegDef_t *)ADC_COMMON_BASE_ADDR)
+#define DMA2_STREAM0_REGS ((DMA_StreamRegDef_t *)DMA2_STREAM0_ADDR)
+
+/* DMA Buffer d? luu ADC result (3 channel) */
 static uint16_t adc_dma_buffer[ADC_DMA_BUFFER_SIZE * ADC_NUM_CHANNELS];
 
-/** ADC calibration factor (nếu cần) */
+/* ADC calibration factor (n?u c?n) */
 static float current_calibration = 1.0f;
 static float speed_calibration = 1.0f;
 
-/* ============================================================================
- * PUBLIC FUNCTIONS - IMPLEMENTATION
- * ============================================================================ */
-
-/**
- * @brief ADC_Init - Khởi tạo ADC + GPIO + DMA
- */
 void ADC_Init(void)
 {
-    /*
-     * TODO: Implement ADC initialization
-     * 
-     * Steps:
-     * 1. Enable RCC clocks:
-     *    - RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE)
-     *    - RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE)
-     *    - RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE)
-     * 
-     * 2. Configure GPIO (PA0, PA1, PA2) as analog input:
-     *    - For each pin: GPIO_Mode = GPIO_Mode_AN
-     *    - GPIO_Init(GPIOA, &GPIO_InitStructure)
-     * 
-     * 3. Configure ADC1:
-     *    - ADC_InitStructure.ADC_Prescaler = ADC_Prescaler_Div8
-     *    - ADC_InitStructure.ADC_ScanConvMode = ENABLE (multi-channel)
-     *    - ADC_InitStructure.ADC_ContinuousConvMode = ENABLE (continuous)
-     *    - ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None
-     *    - ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right
-     *    - ADC_InitStructure.ADC_NbrOfConversion = 3 (3 channels)
-     *    - ADC_Init(ADC1, &ADC_InitStructure)
-     * 
-     * 4. Configure ADC regular channel sequence:
-     *    - ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1, ADC_SampleTime_480Cycles)
-     *    - ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 2, ADC_SampleTime_480Cycles)
-     *    - ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 3, ADC_SampleTime_480Cycles)
-     * 
-     * 5. Configure DMA2 Stream 0:
-     *    - DMA_InitStructure.DMA_Channel = DMA_Channel_0
-     *    - DMA_InitStructure.DMA_PeripheralBaseAddr = &ADC1->DR
-     *    - DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)adc_dma_buffer
-     *    - DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory
-     *    - DMA_InitStructure.DMA_BufferSize = ADC_DMA_BUFFER_SIZE * ADC_NUM_CHANNELS
-     *    - DMA_InitStructure.DMA_Mode = DMA_Mode_Circular (auto-restart)
-     *    - DMA_InitStructure.DMA_DataSize = DMA_DataSize_HalfWord
-     *    - DMA_Init(DMA2_Stream0, &DMA_InitStructure)
-     * 
-     * 6. Enable DMA + ADC:
-     *    - ADC_DMACmd(ADC1, ENABLE)
-     *    - DMA_Cmd(DMA2_Stream0, ENABLE)
-     *    - ADC_Cmd(ADC1, ENABLE)
-     *    - ADC_SoftwareStartConv(ADC1)
-     */
+    GPIO_InitTypeDef gpio_cfg;
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+
+    gpio_cfg.GPIO_Pin = CURRENT_SENSOR_PIN | SPEED_SENSOR_PIN | TEMP_SENSOR_PIN;
+    gpio_cfg.GPIO_Mode = GPIO_Mode_AN;
+    gpio_cfg.GPIO_OType = GPIO_OType_PP;
+    gpio_cfg.GPIO_Speed = GPIO_Speed_2MHz;
+    gpio_cfg.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    GPIO_Init(GPIOA, &gpio_cfg);
+
+    DMA2_STREAM0_REGS->CR &= ~DMA_SxCR_EN;
+    while ((DMA2_STREAM0_REGS->CR & DMA_SxCR_EN) != 0U) {
+    }
+
+    DMA2_STREAM0_REGS->PAR = (uint32_t)&ADC1_REGS->DR;
+    DMA2_STREAM0_REGS->M0AR = (uint32_t)&adc_dma_buffer[0];
+    DMA2_STREAM0_REGS->NDTR = ADC_DMA_BUFFER_SIZE * ADC_NUM_CHANNELS;
+    DMA2_STREAM0_REGS->CR = DMA_SxCR_MINC |
+                            DMA_SxCR_PSIZE_0 |
+                            DMA_SxCR_MSIZE_0 |
+                            DMA_SxCR_CIRC |
+                            DMA_SxCR_PL_1;
+    DMA2_STREAM0_REGS->FCR = 0U;
+
+    /* ADC prescaler /8 */
+    ADC_COMMON_REGS->CCR &= ~(3UL << 16);
+    ADC_COMMON_REGS->CCR |= (3UL << 16);
+
+    ADC1_REGS->CR1 = 0U;
+    ADC1_REGS->CR2 = 0U;
+
+    /* Sample time 480 cycles for channels 0,1,2 (bits = 111 each). */
+    ADC1_REGS->SMPR2 = (7UL << (3U * 0U)) |
+                       (7UL << (3U * 1U)) |
+                       (7UL << (3U * 2U));
+
+    ADC1_REGS->SQR1 = (2UL << 20);   /* 3 conversions => L = 2 */
+    ADC1_REGS->SQR2 = 0U;
+    ADC1_REGS->SQR3 = (0UL << 0) | (1UL << 5) | (2UL << 10);
+
+    ADC1_REGS->CR2 = ADC_CR2_CONT | ADC_CR2_DMA | ADC_CR2_DDS | ADC_CR2_ADON;
+
+    DMA2_STREAM0_REGS->CR |= DMA_SxCR_EN;
+    ADC1_REGS->CR2 |= ADC_CR2_SWSTART;
 }
 
-/**
- * @brief ADC_ReadCurrent - Đọc dòng điện hiện tại
- */
 uint16_t ADC_ReadCurrent(void)
 {
-    /*
-     * TODO: Implement current reading
-     * 
-     * 1. Get raw ADC value from buffer[0]
-     * 2. Convert 12-bit (0-4095) to mA (0-5000)
-     *    Formula: mA = (raw_value * 5000) / 4095
-     * 3. Apply calibration factor if needed
-     * 4. Return as uint16_t
-     * 
-     * Current sensor spec:
-     *   - ACT712-5A: 2.5V @ 0A, ±2.5V for ±5A
-     *   - Output: 0V to 5V
-     *   - Linear mapping:
-     *     * 0V → 0mA
-     *     * 2.5V → 2500mA (2.5A)
-     *     * 5V → 5000mA (5A)
-     */
-    
     uint16_t raw = ADC_ReadRaw(0);
-    uint16_t mA = (raw * 5000) / 4095;
+    uint16_t mA = (uint16_t)(((uint32_t)raw * 5000U) / 4095U);
     return (uint16_t)(mA * current_calibration);
 }
 
-/**
- * @brief ADC_ReadSpeed - Đọc tốc độ motor
- */
 uint16_t ADC_ReadSpeed(void)
 {
-    /*
-     * TODO: Implement speed reading
-     * 
-     * 1. Get raw ADC value from buffer[1]
-     * 2. Convert 12-bit (0-4095) to RPM (0-500)
-     *    Formula: RPM = (raw_value * 500) / 4095
-     * 3. Apply calibration factor if needed
-     * 4. Return as uint16_t
-     * 
-     * Speed sensor spec (potentiometer output):
-     *   - Output: 0V to 3.3V
-     *   - Linear mapping:
-     *     * 0V → 0 RPM
-     *     * 1.65V → 250 RPM
-     *     * 3.3V → 500 RPM
-     * 
-     * Note: Adjust 500 RPM max based on actual motor specs
-     */
-    
     uint16_t raw = ADC_ReadRaw(1);
-    uint16_t rpm = (raw * 500) / 4095;
+    uint16_t rpm = (uint16_t)(((uint32_t)raw * 500U) / 4095U);
     return (uint16_t)(rpm * speed_calibration);
 }
 
-/**
- * @brief ADC_ReadTemp - Đọc nhiệt độ (optional)
- */
 uint16_t ADC_ReadTemp(void)
 {
-    /*
-     * TODO: Implement temperature reading
-     * 
-     * 1. Get raw ADC value from buffer[2]
-     * 2. Convert 12-bit (0-4095) to °C (0-100)
-     *    Formula: °C = (raw_value * 100) / 4095
-     * 3. Return as uint16_t
-     * 
-     * Temperature sensor spec (NTC thermistor):
-     *   - Output: 0V to 3.3V
-     *   - Linear mapping (simplified):
-     *     * 0V → 0°C
-     *     * 1.65V → 50°C
-     *     * 3.3V → 100°C
-     * 
-     * Note: For accurate reading, use Steinhart-Hart equation
-     */
-    
     uint16_t raw = ADC_ReadRaw(2);
-    uint16_t temp = (raw * 100) / 4095;
-    return temp;
+    return (uint16_t)(((uint32_t)raw * 100U) / 4095U);
 }
 
-/**
- * @brief ADC_ReadRaw - Đọc raw ADC value
- */
 uint16_t ADC_ReadRaw(uint8_t channel)
 {
-    /*
-     * TODO: Implement raw reading
-     * 
-     * 1. Validate channel (0, 1, 2)
-     * 2. Return adc_dma_buffer[channel]
-     * 
-     * Note: These are continuous updates from DMA interrupt
-     */
-    
-    if (channel < ADC_NUM_CHANNELS) {
-        return adc_dma_buffer[channel];
+    uint32_t sum = 0U;
+    uint32_t i;
+
+    if (channel >= ADC_NUM_CHANNELS) {
+        return 0U;
     }
-    return 0;
+
+    /* Average same channel across DMA circular slots for stable reading. */
+    for (i = 0U; i < ADC_DMA_BUFFER_SIZE; i++) {
+        sum += adc_dma_buffer[(i * ADC_NUM_CHANNELS) + channel];
+    }
+
+    return (uint16_t)(sum / ADC_DMA_BUFFER_SIZE);
 }
 
-/**
- * @brief ADC_GetDMABuffer - Trả về DMA buffer pointer
- */
 uint16_t* ADC_GetDMABuffer(void)
 {
-    /*
-     * TODO: Return DMA buffer for direct access
-     * 
-     * Buffer layout:
-     *   buffer[0] = Current ADC value
-     *   buffer[1] = Speed ADC value
-     *   buffer[2] = Temp ADC value
-     */
-    
     return &adc_dma_buffer[0];
 }
