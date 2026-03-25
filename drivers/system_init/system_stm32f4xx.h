@@ -13,6 +13,8 @@
 #ifndef SYSTEM_STM32F4XX_H
 #define SYSTEM_STM32F4XX_H
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {  /* Nếu biên dịch bằng C++, sử dụng C linkage */
 #endif
@@ -22,13 +24,17 @@ extern "C" {  /* Nếu biên dịch bằng C++, sử dụng C linkage */
  * ============================================================================ */
 
 /* Tần số HSE (External High Speed oscillator) từ crystal 8MHz */
+#ifndef HSE_VALUE
 #define HSE_VALUE    ((uint32_t)8000000)
+#endif
 
 /* Timeout cho HSE startup - số vòng lặp tối đa chờ HSE sẵn sàng */
 #define HSE_STARTUP_TIMEOUT ((uint16_t)0x0500)
 
 /* Tần số HSI (Internal High Speed oscillator) - 16MHz nếu không có HSE */
+#ifndef HSI_VALUE
 #define HSI_VALUE    ((uint32_t)16000000)
+#endif
 
 /* ============================================================================
  * KHAI BÁO BIẾN TOÀN CỤC

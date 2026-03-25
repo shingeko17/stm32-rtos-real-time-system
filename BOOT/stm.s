@@ -14,7 +14,7 @@
 
     .syntax unified
     .cpu cortex-m4
-    .fpu softvfp
+    .fpu fpv4-sp-d16
     .thumb
 
 /* Memory organization symbols (defined in linker script) */
@@ -24,7 +24,6 @@
     .extern _sbss          /* Start address of .bss section (RAM) */
     .extern _ebss          /* End address of .bss section (RAM) */
     .extern _estack        /* End of stack address */
-    .extern _StackTop      /* Top of stack */
 
 /* Declare main function as external */
     .extern main
@@ -148,6 +147,38 @@ __isr_vector:
 Reset_Handler:
     /* Step 1: Disable all interrupts (set PRIMASK bit) */
     cpsid i                           /* Disable all interrupts */
+
+    /* Boot indicator (PE13/PE14/PE15): ON briefly to confirm Reset_Handler runs */
+    /* Enable GPIOE clock: RCC_AHB1ENR bit 4 */
+    ldr    r0, =0x40023830           /* RCC_AHB1ENR */
+    ldr    r1, [r0]
+    orr    r1, r1, #(1 << 4)
+    str    r1, [r0]
+
+    /* Configure PE13..PE15 as general purpose outputs (MODER = 01) */
+    ldr    r0, =0x40021000           /* GPIOE_MODER */
+    ldr    r1, [r0]
+    ldr    r2, =0xFC000000           /* Clear MODER bits for pins 13,14,15 */
+    bic    r1, r1, r2
+    ldr    r2, =0x54000000           /* Set MODER13/14/15 to 01 */
+    orr    r1, r1, r2
+    str    r1, [r0]
+
+    /* All 3 LEDs ON (active-low: drive LOW to sink current through LED) */
+    ldr    r0, =0x40021018           /* GPIOE_BSRR */
+    ldr    r1, =0xE0000000           /* Reset bits 13/14/15 → pin LOW → LED ON */
+    str    r1, [r0]
+
+    /* Short delay so boot pulse is visible */
+    ldr    r0, =0x0003FFFF
+.boot_led_delay:
+    subs   r0, r0, #1
+    bne    .boot_led_delay
+
+    /* All 3 LEDs OFF (drive HIGH → no current → LED OFF) */
+    ldr    r0, =0x40021018           /* GPIOE_BSRR */
+    ldr    r1, =0x0000E000           /* Set bits 13/14/15 → pin HIGH → LED OFF */
+    str    r1, [r0]
     
     /* Step 2: Copy initialized data from Flash to RAM */
     /* Source (_sidata in Flash), Destination (_sdata in RAM), End (_edata) */
@@ -182,13 +213,12 @@ Reset_Handler:
     cmp    r0, r1                     /* Compare current address with end */
     bne    .zero_bss_loop             /* Loop if not done */
     
-    /* Step 4: Call optional SystemInit function (if using ST HAL) */
+    /* Step 4: Initialize system clocks/peripherals before entering main */
 .run_libc_init:
-    /* Uncomment to call SystemInit if using ST HAL libraries
     bl     SystemInit
-    */
     
     /* Step 5: Jump to main function */
+    cpsie  i                         /* Re-enable interrupts before main */
     bl     main                       /* Call main() - should not return */
     
     /* If main returns, hang in loop */
