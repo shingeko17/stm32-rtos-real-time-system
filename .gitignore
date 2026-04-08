@@ -1,10 +1,13 @@
 build/
+build_f1/
+build_f4/
 *.o
 *.elf
 *.bin
 *.hex
 *.map
 .vscode/
+.claude/
 *.axf
 *.lib
 [Dd]ebug/
