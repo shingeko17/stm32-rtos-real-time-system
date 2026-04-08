@@ -1,0 +1,332 @@
+{
+  "board": {
+    "name": "STM32F103C8T6 Development Board",
+    "manufacturer": "Minh Ha Group",
+    "revision": "V1.0",
+    "date": "2022-08-08",
+    "mcu": "STM32F103C8T6"
+  },
+  "mcu": {
+    "name": "STM32F103C8T6",
+    "core": "Cortex-M3",
+    "clock": 8000000,
+    "clock_unit": "Hz",
+    "flash": 65536,
+    "flash_unit": "bytes",
+    "ram": 20480,
+    "ram_unit": "bytes",
+    "package": "LQFP48",
+    "supply_voltage": 3.3,
+    "max_gpio": 48
+  },
+  "headers": {
+    "jp9": {
+      "name": "JP9 HEADER 12X2",
+      "pins": 24,
+      "type": "GPIO Expansion",
+      "mapping": [
+        {"pin": 1, "signal": "GND", "mcu_pin": null},
+        {"pin": 2, "signal": "BOOT1", "mcu_pin": "PB2"},
+        {"pin": 3, "signal": "GND", "mcu_pin": null},
+        {"pin": 4, "signal": "BOOT0", "mcu_pin": "PB0"},
+        {"pin": 5, "signal": "RST", "mcu_pin": null},
+        {"pin": 6, "signal": "3.3V", "mcu_pin": null},
+        {"pin": 7, "signal": "OSC1_8", "mcu_pin": "PD0"},
+        {"pin": 8, "signal": "OSC2_8", "mcu_pin": "PD1"},
+        {"pin": 9, "signal": "NRST", "mcu_pin": "NRST"},
+        {"pin": 10, "signal": "GND", "mcu_pin": null},
+        {"pin": 11, "signal": null, "mcu_pin": null},
+        {"pin": 12, "signal": null, "mcu_pin": null},
+        {"pin": 13, "signal": null, "mcu_pin": null},
+        {"pin": 14, "signal": null, "mcu_pin": null},
+        {"pin": 15, "signal": "GND", "mcu_pin": null},
+        {"pin": 16, "signal": "3.3V", "mcu_pin": null},
+        {"pin": 17, "signal": null, "mcu_pin": null},
+        {"pin": 18, "signal": null, "mcu_pin": null},
+        {"pin": 19, "signal": null, "mcu_pin": null},
+        {"pin": 20, "signal": null, "mcu_pin": null},
+        {"pin": 21, "signal": null, "mcu_pin": null},
+        {"pin": 22, "signal": null, "mcu_pin": null},
+        {"pin": 23, "signal": null, "mcu_pin": null},
+        {"pin": 24, "signal": null, "mcu_pin": null}
+      ]
+    },
+    "jp13": {
+      "name": "JP13 HEADER 12X2 (UART & USB)",
+      "pins": 24,
+      "type": "UART + USB",
+      "mapping": [
+        {"pin": 1, "signal": "GND", "mcu_pin": null},
+        {"pin": 2, "signal": "ROLE", "mcu_pin": null},
+        {"pin": 3, "signal": "GND", "mcu_pin": null},
+        {"pin": 4, "signal": "BUTTON2", "mcu_pin": "PA15"},
+        {"pin": 5, "signal": "GND", "mcu_pin": null},
+        {"pin": 6, "signal": "BUTTON1", "mcu_pin": "PA12"},
+        {"pin": 7, "signal": "GND", "mcu_pin": null},
+        {"pin": 8, "signal": "U1_RX", "mcu_pin": "PA10"},
+        {"pin": 9, "signal": "GND", "mcu_pin": null},
+        {"pin": 10, "signal": "U1_TX", "mcu_pin": "PA9"},
+        {"pin": 11, "signal": "NE555_PULSE", "mcu_pin": null},
+        {"pin": 12, "signal": "LED7_4", "mcu_pin": null},
+        {"pin": 13, "signal": null, "mcu_pin": null},
+        {"pin": 14, "signal": null, "mcu_pin": null},
+        {"pin": 15, "signal": null, "mcu_pin": null},
+        {"pin": 16, "signal": null, "mcu_pin": null},
+        {"pin": 17, "signal": null, "mcu_pin": null},
+        {"pin": 18, "signal": null, "mcu_pin": null},
+        {"pin": 19, "signal": null, "mcu_pin": null},
+        {"pin": 20, "signal": "LED7_4", "mcu_pin": null},
+        {"pin": 21, "signal": null, "mcu_pin": null},
+        {"pin": 22, "signal": null, "mcu_pin": null},
+        {"pin": 23, "signal": "UI_RX", "mcu_pin": "PA11"},
+        {"pin": 24, "signal": "UI_TX", "mcu_pin": "PA10"}
+      ]
+    },
+    "jp14": {
+      "name": "JP14 HEADER 12X2",
+      "pins": 24,
+      "type": "GPIO Expansion",
+      "description": "Extended GPIO header for additional connections",
+      "mapping": []
+    }
+  },
+  "gpio": {
+    "porta": {
+      "name": "Port A",
+      "base_address": "0x40010800",
+      "clock_enable_bit": 2,
+      "pins": {
+        "PA0": {"signal": "PA0-WKUP", "function": "GPIO/ADC", "exposed": true, "connected_to": "WKUP"},
+        "PA1": {"signal": "PA1", "function": "GPIO/ADC", "exposed": false, "connected_to": null},
+        "PA2": {"signal": "PA2", "function": "GPIO/ADC/UART2_TX", "exposed": false, "connected_to": "UART2_TX"},
+        "PA3": {"signal": "PA3", "function": "GPIO/ADC/UART2_RX", "exposed": false, "connected_to": "UART2_RX"},
+        "PA4": {"signal": "PA4", "function": "GPIO/ADC/SPI1_NSS", "exposed": false, "connected_to": null},
+        "PA5": {"signal": "PA5", "function": "GPIO/ADC/SPI1_CK", "exposed": false, "connected_to": null},
+        "PA6": {"signal": "PA6", "function": "GPIO/ADC/SPI1_MISO", "exposed": false, "connected_to": null},
+        "PA7": {"signal": "PA7", "function": "GPIO/ADC/SPI1_MOSI", "exposed": false, "connected_to": null},
+        "PA8": {"signal": "PA8", "function": "GPIO/TIM1_CH1", "exposed": false, "connected_to": null},
+        "PA9": {"signal": "PA9", "function": "GPIO/UART1_TX", "exposed": true, "connected_to": "U1_TX via JP13"},
+        "PA10": {"signal": "PA10", "function": "GPIO/UART1_RX", "exposed": true, "connected_to": "U1_RX via JP13"},
+        "PA11": {"signal": "PA11", "function": "GPIO/UART1_CTS", "exposed": true, "connected_to": "UI_RX via JP13"},
+        "PA12": {"signal": "PA12", "function": "GPIO/UART1_RTS", "exposed": true, "connected_to": "BUTTON1 via JP13"},
+        "PA13": {"signal": "PA13", "function": "GPIO/SWDIO", "exposed": false, "connected_to": "SWDIO (Debug)"},
+        "PA14": {"signal": "PA14", "function": "GPIO/SWCLK", "exposed": false, "connected_to": "SWCLK (Debug)"},
+        "PA15": {"signal": "PA15", "function": "GPIO/SPI1_NSS", "exposed": true, "connected_to": "BUTTON2 via JP13"}
+      }
+    },
+    "portb": {
+      "name": "Port B",
+      "base_address": "0x40010C00",
+      "clock_enable_bit": 3,
+      "pins": {
+        "PB0": {"signal": "PB0", "function": "GPIO/ADC/TIM1_CH2N", "exposed": false, "connected_to": "BOOT0"},
+        "PB1": {"signal": "PB1", "function": "GPIO/ADC/TIM1_CH3N", "exposed": false, "connected_to": null},
+        "PB2": {"signal": "PB2", "function": "GPIO/TIM2_CH3", "exposed": false, "connected_to": "BOOT1"},
+        "PB3": {"signal": "PB3", "function": "GPIO/SPI1_CK", "exposed": false, "connected_to": null},
+        "PB4": {"signal": "PB4", "function": "GPIO/SPI1_MISO", "exposed": false, "connected_to": null},
+        "PB5": {"signal": "PB5", "function": "GPIO/SPI1_MOSI", "exposed": false, "connected_to": null},
+        "PB6": {"signal": "PB6", "function": "GPIO/I2C1_SCL", "exposed": false, "connected_to": null},
+        "PB7": {"signal": "PB7", "function": "GPIO/I2C1_SDA", "exposed": false, "connected_to": null},
+        "PB8": {"signal": "PB8", "function": "GPIO/TIM2_CH3", "exposed": false, "connected_to": null},
+        "PB9": {"signal": "PB9", "function": "GPIO/TIM2_CH4", "exposed": false, "connected_to": null},
+        "PB10": {"signal": "PB10", "function": "GPIO/UART3_TX", "exposed": false, "connected_to": "UART3_TX"},
+        "PB11": {"signal": "PB11", "function": "GPIO/UART3_RX", "exposed": false, "connected_to": "UART3_RX"},
+        "PB12": {"signal": "PB12", "function": "GPIO/SPI2_NSS", "exposed": false, "connected_to": null},
+        "PB13": {"signal": "PB13", "function": "GPIO/SPI2_CK", "exposed": false, "connected_to": null},
+        "PB14": {"signal": "PB14", "function": "GPIO/SPI2_MISO", "exposed": false, "connected_to": null},
+        "PB15": {"signal": "PB15", "function": "GPIO/SPI2_MOSI", "exposed": false, "connected_to": null}
+      }
+    },
+    "portc": {
+      "name": "Port C",
+      "base_address": "0x40011000",
+      "clock_enable_bit": 4,
+      "pins": {
+        "PC13": {"signal": "PC13-TAMPER-RTC", "function": "GPIO/RTC", "exposed": false, "connected_to": "RTC/Tamper"},
+        "PC14": {"signal": "PC14-OSC32_IN", "function": "GPIO/OSC", "exposed": false, "connected_to": "OSC (32.768kHz)"},
+        "PC15": {"signal": "PC15-OSC32_OUT", "function": "GPIO/OSC", "exposed": false, "connected_to": "OSC (32.768kHz)"}
+      }
+    },
+    "portd": {
+      "name": "Port D",
+      "base_address": "0x40011400",
+      "clock_enable_bit": 5,
+      "pins": {
+        "PD0": {"signal": "PD0-OSC_IN", "function": "GPIO/OSC", "exposed": false, "connected_to": "OSC (8MHz main)"},
+        "PD1": {"signal": "PD1-OSC_OUT", "function": "GPIO/OSC", "exposed": false, "connected_to": "OSC (8MHz main)"}
+      }
+    }
+  },
+  "uart": {
+    "UART1": {
+      "number": 1,
+      "apb": "APB2",
+      "clock_enable_bit": 14,
+      "tx_pins": [
+        {"pin": "PA9", "alternate_function": "AF7"}
+      ],
+      "rx_pins": [
+        {"pin": "PA10", "alternate_function": "AF7"}
+      ],
+      "exposed_header": "JP13",
+      "status": "Exposed and usable"
+    },
+    "UART2": {
+      "number": 2,
+      "apb": "APB1",
+      "clock_enable_bit": 17,
+      "tx_pins": [
+        {"pin": "PA2", "alternate_function": "AF7"},
+        {"pin": "PB6", "alternate_function": "AF7"}
+      ],
+      "rx_pins": [
+        {"pin": "PA3", "alternate_function": "AF7"},
+        {"pin": "PB7", "alternate_function": "AF7"}
+      ],
+      "rts_pin": "PA1",
+      "cts_pin": "PA0",
+      "exposed_header": "Not directly exposed",
+      "status": "Available but not on main headers"
+    },
+    "UART3": {
+      "number": 3,
+      "apb": "APB1",
+      "clock_enable_bit": 18,
+      "tx_pins": [
+        {"pin": "PB10", "alternate_function": "AF7"},
+        {"pin": "PC10", "alternate_function": "AF7"}
+      ],
+      "rx_pins": [
+        {"pin": "PB11", "alternate_function": "AF7"},
+        {"pin": "PC11", "alternate_function": "AF7"}
+      ],
+      "exposed_header": "Not directly exposed",
+      "status": "Available but not on main headers"
+    }
+  },
+  "leds": {
+    "led_array": {
+      "type": "Discrete LEDs with resistors",
+      "count": 7,
+      "control_pins": "PB0-PB7",
+      "active_logic": "HIGH",
+      "resistor_value": 1000,
+      "resistor_unit": "Ohm",
+      "pins": {
+        "LED0": {"gpio": "PB0", "resistor": "R_unk", "status": "Available"},
+        "LED1": {"gpio": "PB1", "resistor": "R_unk", "status": "Available"},
+        "LED2": {"gpio": "PB2", "resistor": "R_unk", "status": "Available"},
+        "LED3": {"gpio": "PB3", "resistor": "R_unk", "status": "Available"},
+        "LED4": {"gpio": "PB4", "resistor": "R_unk", "status": "Available"},
+        "LED5": {"gpio": "PB5", "resistor": "R_unk", "status": "Available"},
+        "LED6": {"gpio": "PB6", "resistor": "R_unk", "status": "Available"},
+        "LED7": {"gpio": "PB7", "resistor": "R_unk", "status": "Available"}
+      },
+      "note": "8 LEDs controlled via PB0-PB7, driven through 1k resistors"
+    }
+  },
+  "buttons": {
+    "BUTTON1": {
+      "gpio": "PA12",
+      "header": "JP13",
+      "active_logic": "LOW",
+      "function": "User input"
+    },
+    "BUTTON2": {
+      "gpio": "PA15",
+      "header": "JP13",
+      "active_logic": "LOW",
+      "function": "User input"
+    }
+  },
+  "oscillators": {
+    "main_osc": {
+      "frequency": 8,
+      "frequency_unit": "MHz",
+      "pins": ["PD0", "PD1"],
+      "capacitors": ["C14", "C15", "C16", "C17"],
+      "capacitor_value": 22,
+      "capacitor_unit": "pF"
+    },
+    "rtc_osc": {
+      "frequency": 32.768,
+      "frequency_unit": "kHz",
+      "pins": ["PC14", "PC15"],
+      "capacitors": ["C14", "C15"],
+      "capacitor_value": 22,
+      "capacitor_unit": "pF"
+    }
+  },
+  "debug": {
+    "debugger": "ST-Link v2 (via SWDIO/SWCLK)",
+    "swdio_pin": "PA13",
+    "swclk_pin": "PA14",
+    "nrst_pin": "NRST",
+    "connector": "Not specified in schematic"
+  },
+  "power": {
+    "supply_voltage": 3.3,
+    "supply_voltage_unit": "V",
+    "battery": "3V (via IN4148 diode protection)",
+    "power_management": "Voltage regulator on board"
+  },
+  "system_configuration": {
+    "boot_mode_selection": {
+      "BOOT0": "PB0 via JP9",
+      "BOOT1": "PB2",
+      "default_boot": "Flash memory"
+    }
+  },
+  "expansion_headers": [
+    {
+      "name": "JP9",
+      "type": "General GPIO",
+      "pins": 24,
+      "purpose": "Extra GPIO expansion"
+    },
+    {
+      "name": "JP13",
+      "type": "UART + USB + Buttons",
+      "pins": 24,
+      "purpose": "UART1 communication, USB, Button inputs"
+    },
+    {
+      "name": "JP14",
+      "type": "Extended GPIO",
+      "pins": 24,
+      "purpose": "Additional GPIO expansion"
+    }
+  ],
+  "useful_pins_summary": {
+    "recommended_uart_for_f1_f4_communication": [
+      {
+        "uart": "UART1",
+        "tx_pin": "PA9",
+        "rx_pin": "PA10",
+        "location": "Exposed on JP13",
+        "status": "Ready to use"
+      },
+      {
+        "uart": "UART2",
+        "tx_pin": "PA2 or PB6",
+        "rx_pin": "PA3 or PB7",
+        "location": "Not exposed",
+        "status": "Available but needs manual wiring"
+      },
+      {
+        "uart": "UART3",
+        "tx_pin": "PB10 or PC10",
+        "rx_pin": "PB11 or PC11",
+        "location": "Not exposed",
+        "status": "Available but needs manual wiring"
+      }
+    ]
+  },
+  "notes": [
+    "UART1 is the most convenient for F1-F4 communication (already exposed on JP13)",
+    "PB0-PB7 are used for LED control",
+    "PA13/PA14 are reserved for SWD debugging",
+    "3.3V supply from voltage regulator",
+    "Boot selection via jumpers on JP9"
+  ]
+}
